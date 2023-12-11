@@ -1,10 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function SignupScreen() {
+export default function SignupScreen({navigation}) {
     return (
       <View style={styles.container}>
-        <Text>Signup</Text>
-        <StatusBar style="auto" />
+        <Text onPress={()=>navigation.navigate('TabNavigator')}>Signup</Text>
       </View>
     );
   }
