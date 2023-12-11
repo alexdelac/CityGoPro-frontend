@@ -9,6 +9,7 @@ import ProfilScreen from './screens/ProfilScreen'
 import HistoricalScreen from './screens/HistoricalScreen'
 import SigninScreen from './screens/SigninScreen'
 import SignupScreen from './screens/SignupScreen'
+import NewEventScreen from './screens/NewEventScreen';
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -18,11 +19,11 @@ const TabNavigator = () =>{
     <Tab.Navigator screenOptions={({route})=>({
       tabBarIcon: ({color, size}) => {
         let iconName = '';
-        if (route.name === 'Evenements'){
+        if (route.name === 'Evènements'){
           iconName = 'home'
         } else if (route.name === 'Profil'){
           iconName = 'user'
-        } else if (route.name === 'Historical'){
+        } else if (route.name === 'Historique'){
           iconName = 'history'
         }
         return <FontAwesome name={iconName} size={size} color={color}/>
@@ -33,8 +34,8 @@ const TabNavigator = () =>{
 
     })}>
       <Tab.Screen name='Profil' component={ProfilScreen}/>
-      <Tab.Screen name='Evenements' component={HomeScreen}/>
-      <Tab.Screen name='Historical' component={HistoricalScreen}/>
+      <Tab.Screen name='Evènements' component={HomeScreen}/>
+      <Tab.Screen name='Historique' component={HistoricalScreen}/>
     </Tab.Navigator>
   )
 }
@@ -46,6 +47,7 @@ export default function App() {
         <Stack.Screen name='Signup' component={SignupScreen}/>
         <Stack.Screen name='Signin' component={SigninScreen}/>
         <Stack.Screen name='TabNavigator' component={TabNavigator}/>
+        <Stack.Screen name='NewEvent' component={NewEventScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

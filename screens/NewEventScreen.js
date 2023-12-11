@@ -1,15 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
-export default function NewEventScreen() {
+export default function NewEventScreen({ navigation }) {
     return (
       <View style={styles.container}>
-        <StatusBar style="auto" />
-        <Text stye={styles.h2}>Nouvel évènement</Text>
+        <Text style={styles.h2}>Nouvel évènement</Text>
         <TextInput placeholder='Titre de ton évènement' style={styles.input} />
         <TextInput placeholder='Date et heure de début' style={styles.input} />
         <TextInput placeholder='Date et heure de fin' style={styles.input} />
         <TextInput placeholder='Récurrence' style={styles.input} />
         <TextInput placeholder='Description' style={styles.inputLarge} />
+        <TouchableOpacity onPress={() => navigation.navigate('NewEvent')} style={styles.button} activeOpacity={0.8}>
+          <Text style={styles.textButton}>Créer</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -19,17 +21,33 @@ export default function NewEventScreen() {
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
     },
     h2: {
-
+      fontSize: 36,
+      color: '#FF7337',
+      fontWeight: 'bold',
+      marginTop: 90,
     },
     input: {
 
     },
     inputLarge: {
 
-    }
+    },
+    button: {
+      backgroundColor: '#8440B4',
+      borderRadius: 50,
+      height: 50,
+      width: 285,
+      justifyContent: 'center',
+      alignItems: 'center'
+
+    },
+    textButton: {
+      color: 'white',
+      fontSize: 24,
+    },
   });
 
 //   import { createSlice } from '@reduxjs/toolkit';
