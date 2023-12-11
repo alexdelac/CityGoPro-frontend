@@ -8,7 +8,6 @@ import ProfilScreen from './screens/ProfilScreen'
 import HistoricalScreen from './screens/HistoricalScreen'
 import SigninScreen from './screens/SigninScreen'
 import SignupScreen from './screens/SignupScreen'
-import NewEventScreen from './screens/NewEventScreen';
 
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -56,7 +55,6 @@ export default function App() {
         <Stack.Screen name='Signup' component={SignupScreen}/>
         <Stack.Screen name='Signin' component={SigninScreen}/>
         <Stack.Screen name='TabNavigator' component={TabNavigator}/>
-        <Stack.Screen name='NewEvent' component={NewEventScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
     </Provider>

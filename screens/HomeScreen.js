@@ -1,14 +1,37 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
 import Checkbox from 'expo-checkbox';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { format } from 'date-fns';
+
+// Dernier ajout : END DATE : A modifier car répétition du start
+
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [isChecked, setChecked] = useState(false);
-  const [date, setDate] = useState(new Date())
+  const [isCheckedEvent, setCheckedEvent] = useState(false);
+  const [isCheckedPromotion, setCheckedPromotion] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
 
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    console.warn("A date has been picked: ", date);
+    setSelectedStartDate(date);
+    setSelectedEndDate(date);
+    hideDatePicker();
+  };
   
-
+  
 
   return (
     <View style={styles.container}>
@@ -37,22 +60,36 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.modalView}>
           <Text style={styles.h2Modal}>Nouvel évènement</Text>
         <TextInput placeholder='Titre de ton évènement' style={styles.input} />
-        <TextInput placeholder='Date et heure de début' style={styles.input} />
-        <TextInput placeholder='Date et heure de fin' style={styles.input} />
+        <TextInput placeholder='Date et heure de début' style={styles.input} value={selectedStartDate ? format(selectedStartDate, 'dd/MM/yy HH:mm') : ''}/>
+        <Button title="Show Date Picker" onPress={showDatePicker} />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
+        <TextInput placeholder='Date et heure de fin' style={styles.input} value={selectedEndDate ? format(selectedEndDate, 'dd/MM/yy HH:mm') : ''}/>
+        <Button title="Show Date Picker" onPress={showDatePicker} />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
         <View style={styles.sectionCheckbox}>
           <Text>Evènement :</Text>
             <Checkbox
               style={styles.checkbox}
-              value={isChecked}
-              onValueChange={setChecked}
-              color={isChecked ? '#D3CCD8' : undefined}
+              value={isCheckedEvent}
+              onValueChange={setCheckedEvent}
+              color={isCheckedEvent ? '#D3CCD8' : undefined}
             />
           <Text>Promotion :</Text>
             <Checkbox
               style={styles.checkbox}
-              value={isChecked}
-              onValueChange={setChecked}
-              color={isChecked ? '#D3CCD8' : undefined}
+              value={isCheckedPromotion}
+              onValueChange={setCheckedPromotion}
+              color={isCheckedPromotion ? '#D3CCD8' : undefined}
             />
         </View>
         <TextInput placeholder='Description' style={styles.inputLarge} />
