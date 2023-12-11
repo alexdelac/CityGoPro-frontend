@@ -4,7 +4,6 @@ export default function ProfilScreen() {
     return (
       <View style={styles.container}>
         <Text>Profil</Text>
-        <StatusBar style="auto" />
       </View>
     );
   }

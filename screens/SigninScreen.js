@@ -4,7 +4,6 @@ export default function SigninScreen() {
     return (
       <View style={styles.container}>
         <Text>Signin</Text>
-        <StatusBar style="auto" />
       </View>
     );
   }

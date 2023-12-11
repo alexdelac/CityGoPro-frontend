@@ -4,7 +4,6 @@ export default function HistoricalScreen() {
     return (
       <View style={styles.container}>
         <Text>Historical</Text>
-        <StatusBar style="auto" />
       </View>
     );
   }
