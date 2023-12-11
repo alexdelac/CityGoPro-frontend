@@ -1,17 +1,17 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native';
 import {useState} from 'react'
 import { useDispatch } from 'react-redux';
-import {addToken} from '../reducers/usersPro'
+import { addToken } from '../reducers/usersPro'
 
 export default function SigninScreen({navigation}) {
   const [email, setEmail] = useState(null)
   const [password, setPassword] = useState(null)
   const [error, setError] = useState(null)
 
+  const dispatch = useDispatch()
 
   function handleSubmit(){
 
-    const dispatch = useDispatch()
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (pattern.test(email)){

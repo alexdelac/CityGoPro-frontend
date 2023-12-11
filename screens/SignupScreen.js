@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native';
 import {useState} from 'react'
 import { useDispatch } from 'react-redux';
-import {addToken} from '../reducers/usersPro'
+import { addToken } from '../reducers/usersPro'
 
 export default function SignupScreen({navigation}) {
   const [lastName, setLastName] = useState(null)
@@ -12,13 +12,13 @@ export default function SignupScreen({navigation}) {
   const [confirmPassword, setConfirmPassword] = useState(null)
   const [errorPassword, setErrorPassword]= useState(false)
   const [errorSignup, setErrorSignup]= useState(null)
+  const dispatch = useDispatch()
 
 function handleSubmit() {
-
-  const dispatch = useDispatch()
+  
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-    if (password === confirmPassword && pattern.test(email)){
+    if (password === confirmPassword && pattern.test(email)){ // vérfie si password et email valide
       fetch('http://10.1.1.30:3000/usersPro/signup', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
@@ -28,17 +28,17 @@ function handleSubmit() {
         .then(data=>{
           console.log(data)
           if (data.result){
-            dispatch(addToken(data.token))
+           dispatch(addToken(data.token)) // enregistre le token dans le réducer
             navigation.navigate('TabNavigator', {screen: 'Evenements'})
           } else {
-            setErrorSignup(data.error)
+            setErrorSignup(data.error) // enregistre pour affichage le message d'érreur renvoyé par le back
           }
           
         })
     } else {
-      setErrorPassword(true)
+      setErrorPassword(true) // change le state pour affichage message d'érreur si invalid email ou password non identique
     }
-  Keyboard.dismiss()
+  Keyboard.dismiss() // retire l'affichage du clavier
 }
 
     return (
