@@ -9,6 +9,13 @@ import ProfilScreen from './screens/ProfilScreen'
 import HistoricalScreen from './screens/HistoricalScreen'
 import SigninScreen from './screens/SigninScreen'
 import SignupScreen from './screens/SignupScreen'
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import usersPro from './reducers/usersPro'
+
+const store = configureStore({
+  reducer: {usersPro}
+})
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -41,6 +48,7 @@ const TabNavigator = () =>{
 
 export default function App() {
   return (
+    <Provider store={store}>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name='Signup' component={SignupScreen}/>
@@ -48,6 +56,7 @@ export default function App() {
         <Stack.Screen name='TabNavigator' component={TabNavigator}/>
       </Stack.Navigator>
     </NavigationContainer>
+    </Provider>
   );
 }
 
