@@ -15,7 +15,7 @@ export default function SignupScreen({navigation}) {
 
 function handleSubmit() {
 
-  const dispatch = useDispatch()
+ const dispatch = useDispatch()
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (password === confirmPassword && pattern.test(email)){

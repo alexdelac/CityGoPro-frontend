@@ -1,14 +1,27 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
 import Checkbox from 'expo-checkbox';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [isChecked, setChecked] = useState(false);
-  const [date, setDate] = useState(new Date())
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    console.warn("A date has been picked: ", date);
+    hideDatePicker();
+  };
   
-
 
   return (
     <View style={styles.container}>
@@ -38,6 +51,13 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.h2Modal}>Nouvel évènement</Text>
         <TextInput placeholder='Titre de ton évènement' style={styles.input} />
         <TextInput placeholder='Date et heure de début' style={styles.input} />
+        <Button title="Show Date Picker" onPress={showDatePicker} />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
         <TextInput placeholder='Date et heure de fin' style={styles.input} />
         <View style={styles.sectionCheckbox}>
           <Text>Evènement :</Text>

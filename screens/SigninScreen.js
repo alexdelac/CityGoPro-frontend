@@ -7,6 +7,8 @@ export default function SigninScreen({navigation}) {
   const [email, setEmail] = useState(null)
   const [password, setPassword] = useState(null)
   const [error, setError] = useState(null)
+  
+
 
 
   function handleSubmit(){
