@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import {useState} from 'react'
 import { useDispatch } from 'react-redux';
 import { addToken } from '../reducers/usersPro'
+import {useFonts} from 'expo-font'
 
 export default function SignupScreen({navigation}) {
   const [lastName, setLastName] = useState(null)
@@ -14,6 +15,12 @@ export default function SignupScreen({navigation}) {
   const [errorSignup, setErrorSignup]= useState(null)
   const [isFocused, setIsFocused]= useState(false)
   const dispatch = useDispatch()
+
+  const [fontsLoaded] = useFonts({
+    'Quicksand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
+    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
+  });
+
 
 function handleSubmit() {
   
@@ -38,6 +45,9 @@ function handleSubmit() {
         })
     } else {
       setErrorPassword(true) // change le state pour affichage message d'érreur si invalid email ou password non identique
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
     }
   Keyboard.dismiss() // retire l'affichage du clavier
 }
@@ -54,7 +64,7 @@ function handleSubmit() {
               onChangeText={(value)=>setLastName(value)} 
               style={[styles.input, isFocused === 'Nom' && styles.inputIsFocused]} 
               placeholderTextColor={'#D7D7E5'} 
-              placeholder='Nom'
+              placeholder={isFocused === 'Nom' ? '' : 'Nom'}
           />
           {isFocused === 'Prénom' && <Text style={styles.inputLabel}>Prénom</Text>}
           <TextInput 
@@ -64,7 +74,7 @@ function handleSubmit() {
               onChangeText={(value)=>setFirstName(value)} 
               style={[styles.input, isFocused === 'Prénom' && styles.inputIsFocused]} 
               placeholderTextColor={'#D7D7E5'} 
-              placeholder='Prénom'
+              placeholder={isFocused === 'Prénom' ? '' : 'Prénom'}
           />
           {isFocused === 'Téléphone' && <Text style={styles.inputLabel}>Téléphone</Text>}
           <TextInput 
@@ -74,7 +84,9 @@ function handleSubmit() {
               value={phoneNumber} 
               onChangeText={(value)=>setPhoneNumber(value)} 
               style={[styles.input, isFocused === 'Téléphone' && styles.inputIsFocused]} 
-              placeholderTextColor={'#D7D7E5'} placeholder='Téléphone'/>
+              placeholderTextColor={'#D7D7E5'} 
+              placeholder={isFocused === 'Téléphone' ? '' : 'Téléphone'}
+          />
           {isFocused === 'E-mail' && <Text style={styles.inputLabel}>E-mail</Text>}
           <TextInput 
               onFocus={()=>setIsFocused('E-mail')} 
@@ -84,8 +96,9 @@ function handleSubmit() {
               onChangeText={(value)=>setEmail(value)} 
               style={[styles.input, isFocused === 'E-mail' && styles.inputIsFocused]} 
               placeholderTextColor={'#D7D7E5'} 
-              placeholder='E-mail'/>
-          {isFocused === 'Mot de passe' && <Text style={styles.inputLabel}>Mot de passe</Text>}
+              placeholder={isFocused === 'E-mail' ? '' : 'E-mail'}
+          />
+          {isFocused === 'Mot de passe' && <Text style={styles.inputLabel}>Password</Text>}
           <TextInput 
               onFocus={()=>setIsFocused('Mot de passe')} 
               onBlur={()=>setIsFocused(false)} 
@@ -95,7 +108,8 @@ function handleSubmit() {
               onChangeText={(value)=>setPassword(value)} 
               style={[styles.input, isFocused === 'Mot de passe' && styles.inputIsFocused]} 
               placeholderTextColor={'#D7D7E5'} 
-              placeholder='Mot de passe'/>
+              placeholder={isFocused === 'Mot de passe' ? '' : 'Mot de passe'}
+          />
           {isFocused === 'Confirmation mot de passe' && <Text style={styles.inputLabel}>Confirm</Text>}
           <TextInput 
               onFocus={()=>setIsFocused('Confirmation mot de passe')} 
@@ -106,7 +120,8 @@ function handleSubmit() {
               onChangeText={(value)=>setConfirmPassword(value)} 
               style={[styles.input, isFocused === 'Confirmation mot de passe' && styles.inputIsFocused]} 
               placeholderTextColor={'#D7D7E5'} 
-              placeholder='Confirmation mot de passe'/>
+              placeholder={isFocused === 'Confirmation mot de passe' ? '' : 'Confirmation mot de passe'}
+          />
         </View>
         <TouchableOpacity style={styles.button} onPress={()=>handleSubmit()}>
           <Text style={styles.buttonText}>Envoyer</Text>
@@ -134,7 +149,7 @@ function handleSubmit() {
     title:{
       color: '#FF7337',
       fontSize: 36,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold',
       marginTop: 25
     },
 
@@ -158,7 +173,7 @@ function handleSubmit() {
       position: 'relative',
       color: '#FF7337',
       textAlign: 'center',
-      width: 50,
+      width: 70,
       marginBottom: -14,
       marginLeft: 20,
       backgroundColor: 'white',
@@ -177,7 +192,7 @@ function handleSubmit() {
     buttonText: {
       color: 'white',
       fontSize: 24,
-      fontWeight: '400'
+      fontFamily: 'Quicksand-SemiBold'
     }, 
 
     textContainer: {
@@ -187,13 +202,13 @@ function handleSubmit() {
 
     text: {
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold',
     },
 
     linkText: {
       color: '#FF7337',
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold'
     }
 
     

@@ -2,13 +2,18 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import {useState} from 'react'
 import { useDispatch } from 'react-redux';
 import { addToken } from '../reducers/usersPro'
+import {useFonts} from 'expo-font'
 
 export default function SigninScreen({navigation}) {
   const [email, setEmail] = useState(null)
   const [password, setPassword] = useState(null)
   const [error, setError] = useState(null)
+  const [isFocused, setIsFocused] = useState(false)
   
-
+  const [fontsLoaded] = useFonts({
+    'Quicksand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
+    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
+  });
 
   const dispatch = useDispatch()
 
@@ -40,6 +45,7 @@ export default function SigninScreen({navigation}) {
       }
     } else {
       setError('Invalid Email')
+      setEmail('')
     }
     
     Keyboard.dismiss()
@@ -52,8 +58,29 @@ export default function SigninScreen({navigation}) {
       <KeyboardAvoidingView style={styles.container} >
       <Text style={styles.title}>Connexion</Text>
       <View>
-        <TextInput autoCapitalize='none' value={email} onChangeText={(value)=>setEmail(value)} style={styles.input} placeholderTextColor={'#D7D7E5'} placeholder='E-mail'/>
-        <TextInput autoCapitalize='none' secureTextEntry={true} value={password} onChangeText={(value)=>setPassword(value)} style={styles.input} placeholderTextColor={'#D7D7E5'} placeholder='Mot de passe'/>
+        {isFocused === 'E-mail' && <Text style={styles.inputLabel}>E-mail</Text>}
+        <TextInput 
+            onFocus={()=>setIsFocused('E-mail')} 
+            onBlur={()=>setIsFocused(false)}  
+            autoCapitalize='none' 
+            value={email} 
+            onChangeText={(value)=>setEmail(value)} 
+            style={[styles.input, isFocused === 'E-mail' && styles.inputIsFocused]} 
+            placeholderTextColor={'#D7D7E5'} 
+            placeholder={isFocused === 'E-mail' ? '' : 'E-mail'}
+        />
+        {isFocused === 'Mot de passe' && <Text style={styles.inputLabel}>Password</Text>}
+        <TextInput 
+            onFocus={()=>setIsFocused('Mot de passe')} 
+            onBlur={()=>setIsFocused(false)}  
+            autoCapitalize='none' 
+            secureTextEntry={true} 
+            value={password} 
+            onChangeText={(value)=>setPassword(value)} 
+            style={[styles.input, isFocused === 'Mot de passe' && styles.inputIsFocused]} 
+            placeholderTextColor={'#D7D7E5'} 
+            placeholder={isFocused === 'Mot de passe' ? '' : 'Mot de passe'}
+        />
         <TouchableOpacity>
           <Text style={styles.forgetPassword}>Mot de passe oublié ?</Text>
         </TouchableOpacity>
@@ -62,7 +89,6 @@ export default function SigninScreen({navigation}) {
       <TouchableOpacity style={styles.button} onPress={()=>handleSubmit()}>
         <Text style={styles.buttonText}>Envoyer</Text>
       </TouchableOpacity>
-      <Text style={styles.reseauxText}>ou connecte-toi grâce à tes réseaux</Text>
       <View style={styles.textContainer}>
         <Text style={styles.text}>Pas de compte ?</Text>
         <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
@@ -84,7 +110,7 @@ export default function SigninScreen({navigation}) {
     title:{
       color: '#FF7337',
       fontSize: 36,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold',
       marginTop: 25
     },
 
@@ -98,9 +124,25 @@ export default function SigninScreen({navigation}) {
       paddingLeft: 20,
     },
 
+    inputIsFocused: {
+      borderColor: '#FF7337',
+    },
+
+    inputLabel: {
+      position: 'relative',
+      color: '#FF7337',
+      textAlign: 'center',
+      width: 70,
+      marginBottom: -14,
+      marginLeft: 20,
+      backgroundColor: 'white',
+      zIndex: 1,
+    },
+
     forgetPassword: {
       color: '#FF7337',
       fontSize: 16,
+      fontFamily: 'Quicksand-Bold',
       paddingLeft: 5,
       marginTop: 10,
     },
@@ -132,12 +174,12 @@ export default function SigninScreen({navigation}) {
 
     text: {
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold'
     },
 
     linkText: {
       color: '#FF7337',
       fontSize: 16,
-      fontWeight: 'bold',
+      fontFamily: 'Quicksand-Bold'
     }
   });
