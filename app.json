@@ -12,7 +12,7 @@
       "backgroundColor": "#341C42"
     },
     "assetBundlePatterns": [
-      "**/*"
+      "./assets/fonts/*"
     ],
     "ios": {
       "supportsTablet": true
