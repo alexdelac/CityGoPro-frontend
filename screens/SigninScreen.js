@@ -15,6 +15,10 @@ export default function SigninScreen({navigation}) {
     'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
   });
 
+  /*if(!fontsLoaded){
+    return null
+  }*/
+
   const dispatch = useDispatch()
 
   function handleSubmit(){
