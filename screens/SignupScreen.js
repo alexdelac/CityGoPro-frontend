@@ -21,6 +21,10 @@ export default function SignupScreen({navigation}) {
     'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
   });
 
+  if(!fontsLoaded){
+    return null
+  }
+
 
 function handleSubmit() {
   
