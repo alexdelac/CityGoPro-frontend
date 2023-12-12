@@ -4,14 +4,15 @@ import Checkbox from 'expo-checkbox';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 
+
+
 export default function HomeScreen({ navigation }) {
-  
+
   const [modalVisible, setModalVisible] = useState(false);
   const [isCheckedEvent, setCheckedEvent] = useState(false);
   const [isCheckedPromotion, setCheckedPromotion] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState(null);
-  const [selectedEndDate, setSelectedEndDate] = useState(null);
 
 
   const showDatePicker = () => {
@@ -25,7 +26,6 @@ export default function HomeScreen({ navigation }) {
   const handleConfirm = (date) => {
     console.warn("Date sélectionnée: ", date);
     setSelectedStartDate(date);
-    setSelectedEndDate(date);
     hideDatePicker();
   };
   
@@ -60,26 +60,25 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.h2Modal}>Nouvel évènement</Text>
             <TextInput placeholder='Titre de ton évènement' 
                        style={styles.input} />
+            
+            
             <TextInput placeholder='Date et heure de début' 
                        style={styles.input} 
-                       value={selectedStartDate ? format(selectedStartDate, 'dd/MM/yy HH:mm') : ''}/>
-            <Button title="Show Date Picker" onPress={showDatePicker} />
+                       onFocus={showDatePicker}
+                       value={selectedStartDate ? format(selectedStartDate, 'dd/MM/yy HH:mm') : ''}>
+            </TextInput>
+            
+            
+           
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="datetime"
                 onConfirm={handleConfirm}
                 onCancel={hideDatePicker}
               />
-            <TextInput placeholder='Date et heure de fin' 
-                       style={styles.input} 
-                       value={selectedEndDate ? format(selectedEndDate, 'dd/MM/yy HH:mm') : ''}/>
-            <Button title="Show Date Picker" onPress={showDatePicker} />
-              <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="datetime"
-                onConfirm={handleConfirm}
-                onCancel={hideDatePicker}
-              />
+            
+            
+              
         <View style={styles.sectionCheckbox}>
           <Text>Evènement :</Text>
             <Checkbox
@@ -101,18 +100,19 @@ export default function HomeScreen({ navigation }) {
               style={styles.button1}
               activeOpacity={0.8}
               onPress={() => setModalVisible(false)}>
-                <Text style={styles.textButton1}>Créer</Text>
+          <Text style={styles.textButton1}>Créer</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button2}
               activeOpacity={0.8}
-              onPress={() => setModalVisible(false)}>
-                <Text style={styles.textButton2}>Retour</Text>
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.textButton2}>Retour</Text>
             </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-    </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+      </View>
   );
 }
 
