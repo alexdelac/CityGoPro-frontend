@@ -27,7 +27,7 @@ export default function SigninScreen({navigation}) {
 
     if (pattern.test(email)){
       if(email != null && password != null ){
-        fetch('http://10.1.1.30:3000/usersPro/signin', {
+        fetch('http://10.1.2.64:3000/usersPro/signin', {
           method: 'POST',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -112,7 +112,7 @@ export default function SigninScreen({navigation}) {
     },
 
     title:{
-      color: '#FF7337',
+      color: '#1E98EF',
       fontSize: 36,
       fontFamily: 'Quicksand-Bold',
       marginTop: 25
@@ -129,12 +129,12 @@ export default function SigninScreen({navigation}) {
     },
 
     inputIsFocused: {
-      borderColor: '#FF7337',
+      borderColor: '#1E98EF',
     },
 
     inputLabel: {
       position: 'relative',
-      color: '#FF7337',
+      color: '#1E98EF',
       textAlign: 'center',
       width: 70,
       marginBottom: -14,
@@ -144,7 +144,7 @@ export default function SigninScreen({navigation}) {
     },
 
     forgetPassword: {
-      color: '#FF7337',
+      color: '#1E98EF',
       fontSize: 16,
       fontFamily: 'Quicksand-Bold',
       paddingLeft: 5,
@@ -182,7 +182,7 @@ export default function SigninScreen({navigation}) {
     },
 
     linkText: {
-      color: '#FF7337',
+      color: '#1E98EF',
       fontSize: 16,
       fontFamily: 'Quicksand-Bold'
     }
