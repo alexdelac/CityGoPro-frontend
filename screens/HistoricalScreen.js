@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function HistoricalScreen() {
     return (
       <View style={styles.container}>
-        <Text>Historical</Text>
+        <Text style={styles.h2}>Historique</Text>
       </View>
     );
   }
@@ -13,6 +13,13 @@ export default function HistoricalScreen() {
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
+    },
+    h2: {
+      fontSize: 36,
+      color: '#1E98EF',
+      fontFamily: 'Quicksand-Bold',
+      marginTop: 90,
+      marginBottom: 30,
     },
   });
