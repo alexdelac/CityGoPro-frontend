@@ -15,6 +15,8 @@ import {useFonts} from 'expo-font';
 import usersPro from '../reducers/usersPro';
 import { useSelector } from 'react-redux';
 
+const BACKEND_ADDRESS = 'http://10.1.2.64:3000';
+
 export default function HomeScreen({ navigation }) {
 
 // Retrouver le token du user connecté
@@ -24,6 +26,8 @@ export default function HomeScreen({ navigation }) {
   const [eventsFound, setEventsFound] = useState(null);
 // New event
   const [isNewEventCreated, setIsNewEventCreated] = useState(false);
+// Delete event
+  const [eventId, setEventId] = useState('');
 // Modal to create an event
   const [modalVisible, setModalVisible] = useState(false);
 // Event Title
@@ -87,9 +91,32 @@ export default function HomeScreen({ navigation }) {
       { label: 'Tous les mois', value: 'allMonths' },
   ];
 
+  // Delete the event
+  const handleDelete = (eventId) => {
+    setEventId(eventId);
+    fetch(`${BACKEND_ADDRESS}/events/`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _id: eventId }), 
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result) {
+        console.log('Event deleted successfully');
+        setIsNewEventCreated(true);
+        // setIsNewEventCreated permet de reload la page des events (même fonction que lorsqu'on crée un event)
+      } else {
+        console.log('Event not found or already deleted');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  };
+    
   // Events import 
   useEffect(() => {
-    fetch('http://10.1.2.64:3000/events', {
+    fetch(`${BACKEND_ADDRESS}/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: user })
@@ -148,6 +175,24 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.title}>Description:</Text>
               <Text style={styles.eventInfos}>{event.description}</Text>
             </View>
+            <View style={styles.updateEvent}>
+            <TouchableOpacity
+                style={styles.buttonUpdate}
+                activeOpacity={0.8}
+                onPress={() => handleDelete(event._id)}>
+              <Text style={styles.textButtonUpdate}>
+                Supprimer
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.buttonUpdate}
+                activeOpacity={0.8}
+                onPress={() => {}}>
+              <Text style={styles.textButtonUpdate}>
+                Modifier
+              </Text>
+            </TouchableOpacity>
+            </View>
             </View>
           </View>
         ))}
@@ -166,7 +211,7 @@ export default function HomeScreen({ navigation }) {
 
   // Submit the event 
   const handleSubmit = () => {
-    fetch(`http://10.1.2.64:3000/events/create`, {
+    fetch(`${BACKEND_ADDRESS}/events/create`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -505,7 +550,7 @@ const styles = StyleSheet.create({
   events: {
     width: '90%',
     flexDirection: 'column',
-    marginBottom: 20,
+    marginBottom: 10,
 
   },
   eventCard: {
@@ -527,6 +572,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 5,
     width: 265,
+  },
+  buttonUpdate: {
+    backgroundColor: '#FFF',
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: '#8440B4',
+    marginBottom: 5,
+    height: 35,
+    width: 155,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 25,
+    marginRight: 5,
+  },
+  textButtonUpdate: {
+    color: '#8440B4',
+    fontSize: 14,
+    fontFamily: 'Quicksand-SemiBold',
+  },
+  updateEvent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   }
   
 });
