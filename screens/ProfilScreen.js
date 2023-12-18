@@ -1,15 +1,28 @@
-import { StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, KeyboardAvoidingView, Image } from 'react-native';
 import { useFonts } from 'expo-font'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { AutocompleteDropdown, AutocompleteDropdownContextProvider  } from 'react-native-autocomplete-dropdown';
+import * as ImagePicker from 'expo-image-picker';
+import { disconnect } from '../reducers/usersPro';
 
-export default function ProfilScreen() {
+
+
+export default function ProfilScreen({navigation}) {
   const [infos, setInfos] = useState('')
   const [userInfos, setUserInfos] = useState('')
   const [etablissementFound, setEtablissementFound] = useState(null)
   const [modalVisible, setModalVisible]= useState(false)
-
+  const [adresse, setAdresse]= useState(null)
+  const [selection, setSelection]= useState(null)
+  const [selectedType, setSelectedType]= useState(null)
+  const [selectedAddresse, setSelectedAdresse]=useState(null)
+  const [phone, setPhone]=useState(null)
+  const [siret, setSiret]=useState(null)
+  const [description, setDescription]=useState(null)
+  const [name, setName]=useState(null)
+  const [photoLoaded, setPhotoLoaded]=useState(false)
 
   const [fontsLoaded] = useFonts({
     'Quicksand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
@@ -18,7 +31,7 @@ export default function ProfilScreen() {
 
 
   const user = useSelector((state) => state.usersPro.value)
-
+  const dispatch = useDispatch()
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
@@ -41,14 +54,99 @@ export default function ProfilScreen() {
       })
   }, [])
 
+//a chaque modification de l'input adresse intérroge l'API data.gouv afin d'obtenir les 5 adresse les plus pertinantes avec leurs coordonnées gps
+  useEffect(()=>{
+      fetch(`https://api-adresse.data.gouv.fr/search/?q=${adresse}&limit=5`)
+        .then(response=>response.json())
+        .then(data=>{
+            setSelection(data.features.map((data, i)=>{
+              return {id: i, title: data.properties.label, coord: data.geometry.coordinates}
+            }))
+        })
+  }, [adresse])
+
   if (!fontsLoaded) {
     return null
   }
+
+  function handleSubmit(){
+    if(!etablissementFound){
+      fetch('http://192.168.1.14:3000/etablissements/create', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+    })
+      .then(response=>response.json())
+      .then(data=>{
+        if (data.result) {
+          setInfos(data.infos)
+          setUserInfos(data.user)
+          setEtablissementFound(true)
+          setModalVisible(!modalVisible)
+        } else {
+          setEtablissementFound(false)
+        }
+      })
+    } else {
+      fetch('http://192.168.1.14:3000/etablissements/update', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+    })
+      .then(response=>response.json())
+      .then(data=>{
+        console.log(data)
+      })
+    }
+  }
+
+  const handleImagePicker= async() =>{
+    (async () => {
+      const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (galleryStatus !== 'granted') {
+        console.error('La permission d\'accès à la galerie n\'a pas été accordée');
+      }
+    })()
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedImage = result.assets[0];
+      const formData = new FormData()
+
+    formData.append('photoFromFront', {
+      uri: selectedImage.uri,
+      name: 'photo.jpg',
+      type: 'image/jpeg',
+    })
+
+    fetch(`http://192.168.1.14:3000/etablissements/upload/${user}`, {
+      method: 'PUT',
+      body: formData, 
+    })
+    .then(response=>response.json())
+    .then(data=>{
+      console.log(data)
+    })
+    }
+  }
+
+  const handleDisconnect = ()=>{
+      dispatch(disconnect())
+      navigation.navigate('Signin')
+  }
+  
 
 
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
   if (etablissementFound) {
+    const photo = infos.photos.map((data, i)=>{
+      return <Image key={i} source={{uri: `${data}`}} style={styles.photo}/>
+    })
     display = (
       <View>
         <View style={styles.textContainer}>
@@ -61,7 +159,7 @@ export default function ProfilScreen() {
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Adresse :</Text>
-          <Text></Text>
+          <Text>{infos.localisation.adresse}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>N° de SIRET :</Text>
@@ -81,7 +179,12 @@ export default function ProfilScreen() {
         </View>
         <View>
           <Text style={styles.itemTitle}>Galerie photos :</Text>
-          <Text>photos</Text>
+            <View style={styles.photoContainer}>
+              {photo}
+            </View>
+          <TouchableOpacity onPress={()=>handleImagePicker()}>
+                <Text style={styles.modalText}>+ Ajouter des photos à la galerie</Text>
+          </TouchableOpacity>
         </View>
       </View>
     )
@@ -93,8 +196,8 @@ export default function ProfilScreen() {
     )
   }
 
-
   return (
+    
     <View style={styles.container}>
       <Text style={styles.title}>Mon Profil</Text>
       <View>
@@ -116,7 +219,7 @@ export default function ProfilScreen() {
           <Text>{userInfos.email}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={()=>handleDisconnect()}>
         <Text style={styles.textButton}>Se déconnecter</Text>
       </TouchableOpacity>
       <TouchableOpacity>
@@ -127,21 +230,72 @@ export default function ProfilScreen() {
         transparent={true}
         visible={modalVisible}
       >
+        <AutocompleteDropdownContextProvider>
         <View style={styles.centeredView}>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalView}>
             <Text style={styles.modalTitle}>Mon établissement</Text>
             <View>
-              <TextInput style={styles.input} placeholder="Nom de l'établissement" />
-              <TextInput style={styles.input} placeholder="Type de l'établissement" />
-              <TextInput style={styles.tallInput} placeholder="Adresse de l'établissement" />
-              <TextInput style={styles.input} placeholder="N° de SIRET" />
-              <TextInput style={styles.input} placeholder="Téléphone" />
-              <TextInput style={styles.tallInput} placeholder="Description" />
-              <TouchableOpacity>
-                <Text style={styles.modalText}>+ Ajouter des photos à la galerie</Text>
-              </TouchableOpacity>
+              <TextInput onChangeText={(value)=>setName(value)} style={styles.input} placeholder={etablissementFound ? infos.name :"Nom de l'établissement"} placeholderTextColor={'#D7D7E5'} />
+              <AutocompleteDropdown
+                  clearOnFocus={false}
+                  closeOnBlur={true}
+                  closeOnSubmit={false}
+                  onSelectItem={setSelectedType}
+                  dataSet={[
+                    { id: '1', title: 'Bar' },
+                    { id: '2', title: 'Restaurant' },
+                    { id: '3', title: 'Bar/restaurant' },
+                  ]}
+                  textInputProps={{
+                    placeholder: "Type de l'établissement",
+                    style: {
+                      fontSize: 15,
+                      alignSelf: 'center',
+                      paddingLeft: 9,
+                   }
+                   }}
+                   inputContainerStyle={{
+                    width: 285,
+                      height: 50,
+                      borderRadius: 5,
+                      borderWidth: 1,
+                      borderColor: '#D7D7E5',
+                      backgroundColor: 'white',
+                      marginTop: 9,
+                   }                 
+                   }
+                />
+              <AutocompleteDropdown     
+                    clearOnFocus={false}
+                    closeOnBlur={true}
+                    closeOnSubmit={false}
+                    onSelectItem={(item)=>setSelectedAdresse(item)}
+                    onChangeText={(value)=> setAdresse(value.replace(/ /g, '+'))}
+                    textInputProps={{
+                     placeholder: "Adresse de l'établissement",
+                     style: {
+                        fontSize: 15,
+                        alignSelf: 'center',
+                        paddingLeft: 9,
+                     }
+                    }}
+                    dataSet={selection}
+                    inputContainerStyle={{
+                      width: 285,
+                        height: 50,
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: '#D7D7E5',
+                        backgroundColor: 'white',
+                        marginTop: 9,
+                     }} 
+               />
+              <TextInput onChangeText={(value)=>setSiret(value)}  style={styles.input} placeholder="N° de SIRET" placeholderTextColor={'#D7D7E5'}/>
+              <TextInput inputMode='tel' onChangeText={(value)=>setPhone(value)} style={styles.input} placeholder="Téléphone" placeholderTextColor={'#D7D7E5'}/>
+              <TextInput onChangeText={(value)=>setDescription(value)}  style={styles.tallInput} placeholder="Description" placeholderTextColor={'#D7D7E5'}/>
+             
             </View>
-            <TouchableOpacity style={styles.modalButton}>
+            <TouchableOpacity style={styles.modalButton} onPress={()=>handleSubmit()}>
               <Text>Enregistrer les informations</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
@@ -149,8 +303,10 @@ export default function ProfilScreen() {
             </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>
+        </AutocompleteDropdownContextProvider>
       </Modal>
     </View>
+   
   );
 }
 
@@ -179,6 +335,8 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    marginHorizontal: 10,
   },
 
   itemTitle: {
@@ -186,6 +344,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Quicksand-Bold',
     color: '#341C42'
   },
+
+  
 
   button: {
     width: 285,
@@ -271,6 +431,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Quicksand-SemiBold',
     margin: 5,
     marginBottom: 20,
+  },
+
+  photoContainer: {
+    flexDirection: 'row',
+  },
+
+  photo: {
+    width: 50,
+    height: 50,
+    margin: 5,
   },
 
 

@@ -18,7 +18,7 @@ export default function SigninScreen({navigation}) {
   /*if(!fontsLoaded){
     return null
   }*/
-
+ 
   const dispatch = useDispatch()
 
   function handleSubmit(){
