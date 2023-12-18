@@ -4,17 +4,30 @@ import {  StyleSheet,
           TouchableOpacity, 
           Modal, 
           TextInput, 
-          KeyboardAvoidingView } from 'react-native';
-import React, { useState } from 'react';
+          KeyboardAvoidingView, 
+          ScrollView} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import Checkbox from 'expo-checkbox';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import RNPickerSelect from 'react-native-picker-select';
 import { format } from 'date-fns';
 import {useFonts} from 'expo-font';
+import usersPro from '../reducers/usersPro';
+import { useSelector } from 'react-redux';
 
+const BACKEND_ADDRESS = 'http://10.1.2.64:3000';
 
 export default function HomeScreen({ navigation }) {
 
+// Retrouver le token du user connecté
+  const user = useSelector((state) => state.usersPro.value)
+// Events infos
+  const [eventsInfos, setEventsInfos] = useState([]);
+  const [eventsFound, setEventsFound] = useState(null);
+// New event
+  const [isNewEventCreated, setIsNewEventCreated] = useState(false);
+// Delete event
+  const [eventId, setEventId] = useState('');
 // Modal to create an event
   const [modalVisible, setModalVisible] = useState(false);
 // Event Title
@@ -24,12 +37,12 @@ export default function HomeScreen({ navigation }) {
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [isDatePickerEndVisible, setDatePickerEndVisibility] = useState(false);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
-// Reccurrence selection
-  const [selectedReccurrence, setSelectedReccurrence] = useState(null);
-  const [selectedReccurrenceText, setSelectedReccurrenceText] = useState('');
+// Recurrence selection
+  const [selectedRecurrence, setSelectedRecurrence] = useState(null);
+  const [selectedRecurrenceText, setSelectedRecurrenceText] = useState('');
 // Checkbox event or promo
-  const [isCheckedEvent, setCheckedEvent] = useState(false);
-  const [isCheckedPromotion, setCheckedPromotion] = useState(false);
+  const [isCheckedEvent, setCheckedEvent] = useState('');
+  const [isCheckedPromotion, setCheckedPromotion] = useState('');
 // Event Title
   const [description, setDescription] = useState('');
 // Style des inputs
@@ -37,7 +50,8 @@ export default function HomeScreen({ navigation }) {
 // Import Font Quicksand
   const [fontsLoaded] = useFonts({
     'Quicksand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
-    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
+    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf'),
+    'Quicksand-Regular': require('../assets/fonts/Quicksand-Regular.ttf')
   });
 
 // Start date selection
@@ -52,7 +66,6 @@ export default function HomeScreen({ navigation }) {
         setSelectedStartDate(date);
         hideDatePicker();
   };
-
 // End date selection
   const showDatePickerEnd = () => {
         setDatePickerEndVisibility(true);
@@ -78,21 +91,157 @@ export default function HomeScreen({ navigation }) {
       { label: 'Tous les mois', value: 'allMonths' },
   ];
 
-  // Submit the event 
+  // Delete the event
+  const handleDelete = (eventId) => {
+    setEventId(eventId);
+    fetch(`${BACKEND_ADDRESS}/events/`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _id: eventId }), 
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result) {
+        console.log('Event deleted successfully');
+        setIsNewEventCreated(true);
+        // setIsNewEventCreated permet de reload la page des events (même fonction que lorsqu'on crée un event)
+      } else {
+        console.log('Event not found or already deleted');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  };
+    
+  // Events import 
+  useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: user })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Data from server:", data);
+      if (data.result) {
+        setEventsInfos(data.events);
+        if (data.events && data.events.length > 0) {
+          setEventsFound(true);
+        } else {
+          setEventsFound(false);
+        }
+      } else {
+        setEventsFound(false);
+      }
+    })
+    .finally(() => {
+      setIsNewEventCreated(false);
+    });
+  }, [isNewEventCreated]);
 
- 
-  // RETURN //
+  if (!fontsLoaded) {
+    return null
+  }
+
+  let display;
+  if (eventsFound) {
+    console.log('Events found:', eventsFound)
+    display = (
+    <ScrollView style={styles.events}>
+      {eventsInfos.map((event, index) => (
+      <View key={index}>
+        <View style={styles.eventCard}>
+        <View style={styles.eventInfos}>
+          <Text style={styles.title}>Titre:</Text>
+          <Text style={styles.eventInfos}>{event.title}</Text>
+            </View>
+            <View style={styles.eventInfos}>
+              <Text style={styles.title}>Date:</Text>
+              <Text style={styles.eventInfos}>du {format(new Date(event.startTime), 'dd/MM/yy HH:mm')} au {format(new Date(event.endTime), 'dd/MM/yy HH:mm')}</Text>
+            </View>
+            <View style={styles.eventInfos}>
+              <Text style={styles.title}>Récurrence:</Text>
+              <Text style={styles.eventInfos}>{event.recurrence}</Text>
+            </View>
+            <View style={styles.eventInfos}>
+              <Text style={styles.title}>Type:</Text>
+              <Text style={styles.eventInfos}>
+                {event.eventType.includes('Evènement') && event.eventType.includes('Promotion')
+                ? 'Evènement Promotion' : event.eventType.join(' ')}
+              </Text>
+            </View>
+            <View style={styles.eventInfos}>
+              <Text style={styles.title}>Description:</Text>
+              <Text style={styles.eventInfos}>{event.description}</Text>
+            </View>
+            <View style={styles.updateEvent}>
+            <TouchableOpacity
+                style={styles.buttonUpdate}
+                activeOpacity={0.8}
+                onPress={() => handleDelete(event._id)}>
+              <Text style={styles.textButtonUpdate}>
+                Supprimer
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.buttonUpdate}
+                activeOpacity={0.8}
+                onPress={() => {}}>
+              <Text style={styles.textButtonUpdate}>
+                Modifier
+              </Text>
+            </TouchableOpacity>
+            </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    );
+  } else {
+    console.log('No events found')
+    display = (
+      <View style={styles.none}>
+        <Text style={styles.noneText}>
+          Aucun évènement en cours
+        </Text> 
+      </View>
+    );
+  }
+
+  // Submit the event 
+  const handleSubmit = () => {
+    fetch(`${BACKEND_ADDRESS}/events/create`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        title: title, 
+        startTime: selectedStartDate, 
+        endTime: selectedEndDate, 
+        recurrence: selectedRecurrence, 
+        eventType: [isCheckedEvent, isCheckedPromotion], 
+        description: description,
+        token: user,
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Response from server:", data);
+      setIsNewEventCreated(true);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+
   return (
 
     <View style={styles.container}>
 
       <Text style={styles.h2}>Mes évènements</Text>
 
-        <View style={styles.none}>
-          <Text style={styles.noneText}>
-            Aucun évènement en cours
-          </Text> 
-        </View>
+      {display}
 
         <TouchableOpacity
             onPress={() => setModalVisible(true)}
@@ -165,15 +314,16 @@ export default function HomeScreen({ navigation }) {
                 placeholder={placeholder}
                 items={options}
                 onValueChange={(value) => {
-                  setSelectedReccurrence(value);
-                  setSelectedReccurrenceText(value ? options.find(option => option.value === value).label : '');
+                  setSelectedRecurrence(value);
+                  setSelectedRecurrenceText(value ? options.find(option => option.value === value).label : '');
                 }}
-                  value={selectedReccurrence}>
+                  value={selectedRecurrence}
+                  >
                 <TextInput
                   placeholder='Récurrence'
                   style={styles.input} 
                   editable={false}
-                  value={selectedReccurrenceText} 
+                  value={selectedRecurrenceText} 
                   />
             </RNPickerSelect>
             </View>
@@ -185,8 +335,8 @@ export default function HomeScreen({ navigation }) {
               <Checkbox
                   style={styles.checkbox}
                   value={isCheckedEvent}
-                  onValueChange={setCheckedEvent}
-                  color={isCheckedEvent ? '#1E98EF' : undefined} 
+                  onValueChange={() => setCheckedEvent(isCheckedEvent === '' ? 'Evènement' : '')}
+                  color={isCheckedEvent !== '' ? '#1E98EF' : undefined}
                   />
               <Text>
                 Promotion :
@@ -194,8 +344,8 @@ export default function HomeScreen({ navigation }) {
               <Checkbox
                   style={styles.checkbox}
                   value={isCheckedPromotion}
-                  onValueChange={setCheckedPromotion}
-                  color={isCheckedPromotion ? '#1E98EF' : undefined} 
+                  onValueChange={() => setCheckedPromotion(isCheckedPromotion === '' ? 'Promotion' : '')}
+                  color={isCheckedPromotion !== '' ? '#1E98EF' : undefined}
                   />
               </View>
 
@@ -215,7 +365,9 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity
                 style={styles.button1}
                 activeOpacity={0.8}
-                onPress={() => setModalVisible(false)}>
+                onPress={() => {
+                  setModalVisible(false)
+                  handleSubmit()}}>
               <Text style={styles.textButton1}>
                 Créer
               </Text>
@@ -250,6 +402,7 @@ const styles = StyleSheet.create({
     color: '#1E98EF',
     fontFamily: 'Quicksand-Bold',
     marginTop: 90,
+    marginBottom: 30,
   },
   h2Modal: {
     fontSize: 36,
@@ -393,5 +546,54 @@ const styles = StyleSheet.create({
     width: 285,
     marginTop: 0,
   },
+
+  events: {
+    width: '90%',
+    flexDirection: 'column',
+    marginBottom: 10,
+
+  },
+  eventCard: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#D7D7E5',
+    borderRadius: 5,
+    marginBottom: 9,
+    padding: 8,
+
+  },
+  title: {
+    fontFamily: 'Quicksand-SemiBold',
+    fontSize: 16,
+  },
+  eventInfos: {
+    flexDirection: 'row',
+    fontFamily: 'Quicksand-Regular',
+    fontSize: 15,
+    marginLeft: 5,
+    width: 265,
+  },
+  buttonUpdate: {
+    backgroundColor: '#FFF',
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: '#8440B4',
+    marginBottom: 5,
+    height: 35,
+    width: 155,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 25,
+    marginRight: 5,
+  },
+  textButtonUpdate: {
+    color: '#8440B4',
+    fontSize: 14,
+    fontFamily: 'Quicksand-SemiBold',
+  },
+  updateEvent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  }
   
 });

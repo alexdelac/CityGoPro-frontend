@@ -151,7 +151,7 @@ function handleSubmit() {
     },
 
     title:{
-      color: '#FF7337',
+      color: '#1E98EF',
       fontSize: 36,
       fontFamily: 'Quicksand-Bold',
       marginTop: 25
@@ -170,12 +170,12 @@ function handleSubmit() {
     },
 
     inputIsFocused: {
-      borderColor: '#FF7337',
+      borderColor: '#1E98EF',
     },
 
     inputLabel: {
       position: 'relative',
-      color: '#FF7337',
+      color: '#1E98EF',
       textAlign: 'center',
       width: 70,
       marginBottom: -14,
@@ -210,7 +210,7 @@ function handleSubmit() {
     },
 
     linkText: {
-      color: '#FF7337',
+      color: '#1E98EF',
       fontSize: 16,
       fontFamily: 'Quicksand-Bold'
     }

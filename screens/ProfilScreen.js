@@ -35,7 +35,7 @@ export default function ProfilScreen({navigation}) {
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
-    fetch('http://10.1.1.30:3000/etablissements', {
+    fetch('http://10.1.2.64:3000/etablissements', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: user }),
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: '#FF7337',
+    color: '#1E98EF',
     fontSize: 36,
     fontFamily: 'Quicksand-Bold',
     marginTop: 25
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   },
 
   deleteLink: {
-    color: '#FF7337',
+    color: '#1E98EF',
     fontSize: 16,
     fontFamily: 'Quicksand-SemiBold'
   },
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
 
   modalTitle: {
     fontSize: 24,
-    color: '#FF7337',
+    color: '#1E98EF',
     fontFamily: 'Quicksand-Bold'
   },
 
