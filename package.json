@@ -19,7 +19,7 @@
     "expo": "~49.0.15",
     "expo-checkbox": "~2.4.0",
     "expo-font": "~11.4.0",
-    "expo-image-picker": "~14.3.2",
+    "expo-image-picker": "^14.5.0",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "install": "^0.13.0",
