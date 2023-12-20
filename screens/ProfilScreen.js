@@ -35,7 +35,7 @@ export default function ProfilScreen({navigation}) {
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
-    fetch('http://10.1.2.64:3000/etablissements', {
+    fetch('http://10.1.1.249:3000/etablissements', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: user }),
@@ -60,7 +60,8 @@ export default function ProfilScreen({navigation}) {
         .then(response=>response.json())
         .then(data=>{
             setSelection(data.features.map((data, i)=>{
-              return {id: i, title: data.properties.label, coord: data.geometry.coordinates}
+              return {id: i, title: data.properties.label, coord: data.geometry}
+              
             }))
         })
   }, [adresse])
@@ -71,10 +72,10 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://192.168.1.14:3000/etablissements/create', {
+      fetch('http://10.1.1.249:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
     })
       .then(response=>response.json())
       .then(data=>{
@@ -88,10 +89,10 @@ export default function ProfilScreen({navigation}) {
         }
       })
     } else {
-      fetch('http://192.168.1.14:3000/etablissements/update', {
+      fetch('http://10.1.1.249:3000/etablissements/update', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+        body: JSON.stringify({ token: user, }),
     })
       .then(response=>response.json())
       .then(data=>{
@@ -123,7 +124,7 @@ export default function ProfilScreen({navigation}) {
       type: 'image/jpeg',
     })
 
-    fetch(`http://192.168.1.14:3000/etablissements/upload/${user}`, {
+    fetch(`http://10.1.1.249:3000/etablissements/upload/${user}`, {
       method: 'PUT',
       body: formData, 
     })
@@ -139,7 +140,7 @@ export default function ProfilScreen({navigation}) {
       navigation.navigate('Signin')
   }
   
-
+console.log(selectedAddresse)
 
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
@@ -159,7 +160,7 @@ export default function ProfilScreen({navigation}) {
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Adresse :</Text>
-          <Text>{infos.localisation.adresse}</Text>
+          <Text>{infos.adresse}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>N° de SIRET :</Text>
