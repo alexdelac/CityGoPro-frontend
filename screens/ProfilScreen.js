@@ -60,7 +60,8 @@ export default function ProfilScreen({navigation}) {
         .then(response=>response.json())
         .then(data=>{
             setSelection(data.features.map((data, i)=>{
-              return {id: i, title: data.properties.label, coord: data.geometry.coordinates}
+              return {id: i, title: data.properties.label, coord: data.geometry}
+              
             }))
         })
   }, [adresse])
@@ -74,7 +75,7 @@ export default function ProfilScreen({navigation}) {
       fetch('http://192.168.1.60:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
     })
       .then(response=>response.json())
       .then(data=>{
@@ -91,7 +92,7 @@ export default function ProfilScreen({navigation}) {
       fetch('http://192.168.1.60:3000/etablissements/update', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
+        body: JSON.stringify({ token: user, }),
     })
       .then(response=>response.json())
       .then(data=>{
@@ -139,7 +140,7 @@ export default function ProfilScreen({navigation}) {
       navigation.navigate('Signin')
   }
   
-
+console.log(selectedAddresse)
 
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
