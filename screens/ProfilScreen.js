@@ -8,7 +8,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { disconnect } from '../reducers/usersPro';
 
 
-
 export default function ProfilScreen({navigation}) {
   const [infos, setInfos] = useState('')
   const [userInfos, setUserInfos] = useState('')
@@ -26,7 +25,8 @@ export default function ProfilScreen({navigation}) {
 
   const [fontsLoaded] = useFonts({
     'Quicksand-Bold': require('../assets/fonts/Quicksand-Bold.ttf'),
-    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf')
+    'Quicksand-SemiBold': require('../assets/fonts/Quicksand-SemiBold.ttf'),
+    'Quicksand-Regular': require('../assets/fonts/Quicksand-Regular.ttf')
   });
 
 
@@ -72,11 +72,11 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://192.168.1.60:3000/etablissements/create', {
+      fetch('http://10.1.2.64:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
-    })
+        })
       .then(response=>response.json())
       .then(data=>{
         if (data.result) {
@@ -89,7 +89,7 @@ export default function ProfilScreen({navigation}) {
         }
       })
     } else {
-      fetch('http://192.168.1.60:3000/etablissements/update', {
+      fetch('http://10.1.2.64:3000/etablissements/update', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, }),
@@ -124,7 +124,7 @@ export default function ProfilScreen({navigation}) {
       type: 'image/jpeg',
     })
 
-    fetch(`http://192.168.1.60:3000/etablissements/upload/${user}`, {
+    fetch(`http://10.1.2.64:3000/etablissements/upload/${user}`, {
       method: 'PUT',
       body: formData, 
     })
@@ -140,8 +140,8 @@ export default function ProfilScreen({navigation}) {
       navigation.navigate('Signin')
   }
   
-console.log(selectedAddresse)
 
+ console.log(selectedAddresse);
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
   if (etablissementFound) {
@@ -152,41 +152,43 @@ console.log(selectedAddresse)
       <View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Nom de l'établissement :</Text>
-          <Text>{infos.name}</Text>
+          <Text style={styles.response}>{infos.name}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Type de l'établissement :</Text>
-          <Text>{infos.type}</Text>
+          <Text style={styles.response}>{infos.type}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Adresse :</Text>
-          <Text>{infos.adresse}</Text>
+          <Text style={styles.response}>{infos.adresse}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>N° de SIRET :</Text>
-          <Text>{infos.siret}</Text>
+          <Text style={styles.response}>{infos.siret}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Nom du gérant :</Text>
-          <Text>{userInfos.lastName} {userInfos.firstName}</Text>
+          <Text style={styles.response}>{userInfos.lastName} {userInfos.firstName}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Téléphone :</Text>
-          <Text>{infos.telephone}</Text>
+          <Text style={styles.response}>{infos.telephone}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Description :</Text>
-          <Text>{infos.description}</Text>
+          <Text style={styles.response}>{infos.description}</Text>
         </View>
-        <View>
+        <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Galerie photos :</Text>
+        </View>
+        <View style={styles.textContainer}>
             <View style={styles.photoContainer}>
               {photo}
             </View>
           <TouchableOpacity onPress={()=>handleImagePicker()}>
                 <Text style={styles.modalText}>+ Ajouter des photos à la galerie</Text>
           </TouchableOpacity>
-        </View>
+          </View>
       </View>
     )
   } else {
@@ -216,8 +218,8 @@ console.log(selectedAddresse)
           <FontAwesome name='pencil' color={'#8440B4'} size={20} />
         </View>
         <View style={styles.textContainer}>
-          <Text>E-mail : </Text>
-          <Text>{userInfos.email}</Text>
+          <Text style={styles.itemTitle}>E-mail : </Text>
+          <Text style={styles.response}>{userInfos.email}</Text>
         </View>
       </View>
       <TouchableOpacity style={styles.button} onPress={()=>handleDisconnect()}>
@@ -296,11 +298,17 @@ console.log(selectedAddresse)
               <TextInput onChangeText={(value)=>setDescription(value)}  style={styles.tallInput} placeholder="Description" placeholderTextColor={'#D7D7E5'}/>
              
             </View>
-            <TouchableOpacity style={styles.modalButton} onPress={()=>handleSubmit()}>
-              <Text>Enregistrer les informations</Text>
+            <TouchableOpacity 
+              style={styles.modalButton} 
+              onPress={()=>handleSubmit()}
+            >
+              <Text style={styles.modalButtonText}>Enregistrer les informations</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text onPress={()=>setModalVisible(!modalVisible)} style={styles.textButton} >Retour</Text>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={()=>setModalVisible(!modalVisible)} 
+            >
+              <Text style={styles.textButton} >Retour</Text>
             </TouchableOpacity>
           </KeyboardAvoidingView>
         </View>
@@ -316,14 +324,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
 
   title: {
     color: '#1E98EF',
     fontSize: 36,
     fontFamily: 'Quicksand-Bold',
-    marginTop: 25
+    marginTop: 90,
   },
 
   subTitle: {
@@ -337,7 +345,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    marginHorizontal: 10,
+    marginHorizontal: 15,
+    marginTop: 5,
   },
 
   itemTitle: {
@@ -355,7 +364,8 @@ const styles = StyleSheet.create({
     borderColor: '#8440B4',
     borderRadius: 50,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 20,
   },
 
   textButton: {
@@ -367,20 +377,21 @@ const styles = StyleSheet.create({
   deleteLink: {
     color: '#1E98EF',
     fontSize: 16,
-    fontFamily: 'Quicksand-SemiBold'
+    fontFamily: 'Quicksand-SemiBold',
+    marginBottom: 15,
   },
 
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)'
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 
   modalView: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 25,
+    padding: 40,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -397,7 +408,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#D7D7E5',
-    marginTop: 9,
+    marginTop: 5,
     paddingLeft: 9,
   },
 
@@ -407,14 +418,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#D7D7E5',
-    marginTop: 9,
+    marginTop: 5,
     paddingLeft: 9,
   },
 
   modalTitle: {
     fontSize: 24,
     color: '#1E98EF',
-    fontFamily: 'Quicksand-Bold'
+    fontFamily: 'Quicksand-Bold',
+    marginBottom: 15,
   },
 
   modalButton: {
@@ -425,6 +437,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+    marginTop: 20,
+  },
+  modalButtonText: {
+    fontSize: 16,
+    color: '#FFF',
+    fontFamily: 'Quicksand-SemiBold',
   },
 
   modalText: {
@@ -439,9 +457,17 @@ const styles = StyleSheet.create({
   },
 
   photo: {
-    width: 50,
-    height: 50,
+    width: 55,
+    height: 55,
     margin: 5,
+    borderWidth: 3,
+    borderColor: '#1E98EF'
+  },
+  response: {
+    color: '#341C42',
+    fontSize: 16,
+    fontFamily: 'Quicksand-Regular',
+    marginLeft: 10,
   },
 
 
