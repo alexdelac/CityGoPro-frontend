@@ -168,7 +168,7 @@ export default function SigninScreen({navigation}) {
     buttonText: {
       color: 'white',
       fontSize: 24,
-      fontWeight: '400'
+      fontFamily: 'Quicksand-SemiBold',
     }, 
 
     textContainer: {
