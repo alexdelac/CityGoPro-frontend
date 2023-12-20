@@ -71,7 +71,7 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://192.168.1.14:3000/etablissements/create', {
+      fetch('http://10.1.2.64:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
@@ -88,7 +88,7 @@ export default function ProfilScreen({navigation}) {
         }
       })
     } else {
-      fetch('http://192.168.1.14:3000/etablissements/update', {
+      fetch('http://10.1.2.64:3000/etablissements/update', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, description: description, adresse: selectedAddresse.title, latitude:selectedAddresse.coord[1], longitude: selectedAddresse.coord[0] }),
@@ -123,7 +123,7 @@ export default function ProfilScreen({navigation}) {
       type: 'image/jpeg',
     })
 
-    fetch(`http://192.168.1.14:3000/etablissements/upload/${user}`, {
+    fetch(`http://10.1.2.64:3000/etablissements/upload/${user}`, {
       method: 'PUT',
       body: formData, 
     })
@@ -140,7 +140,7 @@ export default function ProfilScreen({navigation}) {
   }
   
 
-
+ console.log(selectedAddresse);
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
   if (etablissementFound) {
@@ -159,7 +159,7 @@ export default function ProfilScreen({navigation}) {
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>Adresse :</Text>
-          <Text>{infos.localisation.adresse}</Text>
+          <Text>{infos.adresse}</Text>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.itemTitle}>N° de SIRET :</Text>
