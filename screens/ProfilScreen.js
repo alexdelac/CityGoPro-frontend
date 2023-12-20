@@ -76,7 +76,7 @@ export default function ProfilScreen({navigation}) {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
-    })
+        })
       .then(response=>response.json())
       .then(data=>{
         if (data.result) {
