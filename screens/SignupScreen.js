@@ -31,7 +31,7 @@ function handleSubmit() {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (password === confirmPassword && pattern.test(email)){ // vérfie si password et email valide
-      fetch('http://10.1.2.64:3000/usersPro/signup', {
+      fetch('http://10.1.1.249:3000/usersPro/signup', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({lastName, firstName, phoneNumber, email, password, confirmPassword}),
