@@ -13,7 +13,7 @@ export default function ProfilScreen({navigation}) {
   const [userInfos, setUserInfos] = useState('')
   const [etablissementFound, setEtablissementFound] = useState(null)
   const [modalVisible, setModalVisible]= useState(false)
-  const [adresse, setAdresse]= useState(null)
+  const [adresse, setAdresse]= useState('')
   const [selection, setSelection]= useState(null)
   const [selectedType, setSelectedType]= useState(null)
   const [selectedAddresse, setSelectedAdresse]=useState(null)
@@ -21,6 +21,7 @@ export default function ProfilScreen({navigation}) {
   const [siret, setSiret]=useState(null)
   const [description, setDescription]=useState(null)
   const [name, setName]=useState(null)
+  const [update, setUpdate]=useState(false)
   const [photoLoaded, setPhotoLoaded]=useState(false)
 
   const [fontsLoaded] = useFonts({
@@ -35,7 +36,7 @@ export default function ProfilScreen({navigation}) {
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
-    fetch('http://192.168.1.60:3000/etablissements', {
+    fetch('http://10.1.1.249:3000/etablissements', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: user }),
@@ -47,23 +48,35 @@ export default function ProfilScreen({navigation}) {
           setInfos(data.infos)
           setUserInfos(data.user)
           setEtablissementFound(true)
+          //set les états des infos établissements pour réutilisation si update
+          setName(data.infos.name)
+          setSiret(data.infos.siret)
+          setPhone(data.infos.telephone)
+          setDescription(data.infos.description)
         } else {
           setEtablissementFound(false)
         }
 
       })
-  }, [])
+  }, [update])
 
 //a chaque modification de l'input adresse intérroge l'API data.gouv afin d'obtenir les 5 adresse les plus pertinantes avec leurs coordonnées gps
   useEffect(()=>{
+    //ne déclenche la requete qu'a partir de 3 caractéres car minimum demandé par l'API
+    if(adresse.length>3){
       fetch(`https://api-adresse.data.gouv.fr/search/?q=${adresse}&limit=5`)
         .then(response=>response.json())
         .then(data=>{
+          if(data){
+
             setSelection(data.features.map((data, i)=>{
               return {id: i, title: data.properties.label, coord: data.geometry}
               
             }))
+          }
+         
         })
+    }   
   }, [adresse])
 
   if (!fontsLoaded) {
@@ -72,7 +85,7 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://10.1.2.64:3000/etablissements/create', {
+      fetch('http://10.1.1.249:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
@@ -90,13 +103,15 @@ export default function ProfilScreen({navigation}) {
       })
     } else {
       fetch('http://10.1.2.64:3000/etablissements/update', {
-        method: 'POST',
+        method: 'PUT',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: user, }),
+        body: JSON.stringify({ token: user, name:name, siret:siret, telephone: phone, description: description}),
     })
       .then(response=>response.json())
       .then(data=>{
         console.log(data)
+        setModalVisible(!modalVisible)
+        setUpdate(!update)
       })
     }
   }
@@ -141,7 +156,7 @@ export default function ProfilScreen({navigation}) {
   }
   
 
- console.log(selectedAddresse);
+
   // affiche les infos établissement ou le bouton pour renseigner un nouvel etablissement si aucun enregistré
   let display
   if (etablissementFound) {
@@ -238,8 +253,8 @@ export default function ProfilScreen({navigation}) {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalView}>
             <Text style={styles.modalTitle}>Mon établissement</Text>
             <View>
-              <TextInput onChangeText={(value)=>setName(value)} style={styles.input} placeholder={etablissementFound ? infos.name :"Nom de l'établissement"} placeholderTextColor={'#D7D7E5'} />
-              <AutocompleteDropdown
+              <TextInput onChangeText={(value)=>setName(value)} style={styles.input} placeholder={etablissementFound ? `Nom : ${infos.name}` :"Nom de l'établissement"} placeholderTextColor={'#D7D7E5'} />
+              {!etablissementFound && <AutocompleteDropdown
                   clearOnFocus={false}
                   closeOnBlur={true}
                   closeOnSubmit={false}
@@ -247,7 +262,7 @@ export default function ProfilScreen({navigation}) {
                   dataSet={[
                     { id: '1', title: 'Bar' },
                     { id: '2', title: 'Restaurant' },
-                    { id: '3', title: 'Bar/restaurant' },
+                    { id: '3', title: 'Bar / Restaurant' },
                   ]}
                   textInputProps={{
                     placeholder: "Type de l'établissement",
@@ -267,11 +282,13 @@ export default function ProfilScreen({navigation}) {
                       marginTop: 9,
                    }                 
                    }
-                />
-              <AutocompleteDropdown     
+                />}
+              {!etablissementFound && <AutocompleteDropdown     
                     clearOnFocus={false}
                     closeOnBlur={true}
                     closeOnSubmit={false}
+                    debounce={400}
+                    initialValue={selectedAddresse}
                     onSelectItem={(item)=>setSelectedAdresse(item)}
                     onChangeText={(value)=> setAdresse(value.replace(/ /g, '+'))}
                     textInputProps={{
@@ -292,10 +309,10 @@ export default function ProfilScreen({navigation}) {
                         backgroundColor: 'white',
                         marginTop: 9,
                      }} 
-               />
-              <TextInput onChangeText={(value)=>setSiret(value)}  style={styles.input} placeholder="N° de SIRET" placeholderTextColor={'#D7D7E5'}/>
-              <TextInput inputMode='tel' onChangeText={(value)=>setPhone(value)} style={styles.input} placeholder="Téléphone" placeholderTextColor={'#D7D7E5'}/>
-              <TextInput onChangeText={(value)=>setDescription(value)}  style={styles.tallInput} placeholder="Description" placeholderTextColor={'#D7D7E5'}/>
+               />}
+              <TextInput onChangeText={(value)=>setSiret(value)}  style={styles.input} placeholder={etablissementFound ? `Siret : ${infos.siret}` :"N° de SIRET"} placeholderTextColor={'#D7D7E5'}/>
+              <TextInput inputMode='tel' onChangeText={(value)=>setPhone(value)} style={styles.input} placeholder={etablissementFound ? `Telephone :${infos.telephone}` :"Téléphone"} placeholderTextColor={'#D7D7E5'}/>
+              <TextInput onChangeText={(value)=>setDescription(value)}  style={styles.tallInput} placeholder={etablissementFound ? `Description : ${infos.description}` :"Description"} placeholderTextColor={'#D7D7E5'}/>
              
             </View>
             <TouchableOpacity 
