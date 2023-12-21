@@ -27,7 +27,7 @@ export default function SigninScreen({navigation}) {
 
     if (pattern.test(email)){
       if(email != null && password != null ){
-        fetch('http://192.168.1.60:3000/usersPro/signin', {
+        fetch('http://10.1.3.185:3000/usersPro/signin', {
           method: 'POST',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
