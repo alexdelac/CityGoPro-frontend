@@ -6,7 +6,7 @@ import HistoryCard from '../components/HistoryCard';
 
 
 
-const BACKEND_ADDRESS = 'http://10.1.3.185:3000';
+const BACKEND_ADDRESS = 'http://10.1.2.64:3000';
 
 
 export default function HistoricalScreen() {

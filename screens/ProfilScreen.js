@@ -36,7 +36,7 @@ export default function ProfilScreen({navigation}) {
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
-    fetch('http://10.1.1.249:3000/etablissements', {
+    fetch('http://10.1.2.64:3000/etablissements', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: user }),
@@ -85,7 +85,7 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://10.1.1.249:3000/etablissements/create', {
+      fetch('http://10.1.2.64:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
@@ -383,6 +383,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 20,
   },
 
   textButton: {
