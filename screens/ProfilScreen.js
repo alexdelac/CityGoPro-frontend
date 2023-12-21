@@ -36,7 +36,7 @@ export default function ProfilScreen({navigation}) {
 
   //a l'ouverture de la page vérifie si un proprietaire a renseigner un établissement si oui renvoi la data de cet établissement
   useEffect(() => {
-    fetch('http://10.1.2.64:3000/etablissements', {
+    fetch('http://10.1.1.249:3000/etablissements', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: user }),
@@ -85,7 +85,7 @@ export default function ProfilScreen({navigation}) {
 
   function handleSubmit(){
     if(!etablissementFound){
-      fetch('http://10.1.2.64:3000/etablissements/create', {
+      fetch('http://10.1.1.249:3000/etablissements/create', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, type:selectedType.title, siret:siret, telephone: phone, description: description, adresse: selectedAddresse.title, coord: selectedAddresse.coord }),
@@ -102,7 +102,7 @@ export default function ProfilScreen({navigation}) {
         }
       })
     } else {
-      fetch('http://10.1.2.64:3000/etablissements/update', {
+      fetch('http://10.1.1.249:3000/etablissements/update', {
         method: 'PUT',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user, name:name, siret:siret, telephone: phone, description: description}),
@@ -139,13 +139,14 @@ export default function ProfilScreen({navigation}) {
       type: 'image/jpeg',
     })
 
-    fetch(`http://10.1.3.185:3000/etablissements/upload/${user}`, {
+    fetch(`http://10.1.1.249:3000/etablissements/upload/${user}`, {
       method: 'PUT',
       body: formData, 
     })
     .then(response=>response.json())
     .then(data=>{
       console.log(data)
+      setUpdate(!update)
     })
     }
   }
